@@ -2,12 +2,14 @@
 # See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
 name: CMake on multiple platforms
 
-on: [push, pull_request]
+on: [push, pull_request, workflow_dispatch]
 
 jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
+      # one platform failed but effect other platform
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         build_type: [Release]
@@ -28,6 +30,10 @@ jobs:
     steps:
       - name: Clone GIT repo
         uses: actions/checkout@v4
+      - name: install 3rd party thing
+        if: runner.os == 'Linux'
+        run: >
+          sudo apt-get install valgrind
       - name: Configure CMake
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
         # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
@@ -41,6 +47,11 @@ jobs:
       - name: Build
         # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
         run: cmake --build ${{ github.workspace }}/build --config ${{ matrix.build_type }}
+        
+      - name: Check
+        if: runner.os == 'Linux'
+        run: >
+          valgrind --tool=memcheck ${{ github.workspace }}/build/bin/HelloGithub
       
       - name: Test
         working-directory: ${{ steps.strings.outputs.build-output-dir }}
