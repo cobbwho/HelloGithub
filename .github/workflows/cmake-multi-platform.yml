@@ -31,7 +31,7 @@ jobs:
       - name: Clone GIT repo
         uses: actions/checkout@v4
       - name: install 3rd party thing
-        if: runner.os == 'Linux'
+        if: runner.os == 'Linux' || runner.os == 'macOS'
         run: >
           sudo apt-get install valgrind
       - name: Configure CMake
@@ -49,9 +49,9 @@ jobs:
         run: cmake --build ${{ github.workspace }}/build --config ${{ matrix.build_type }}
         
       - name: Check
-        if: runner.os == 'Linux'
+        if: runner.os == 'Linux' || runner.os == 'macOS'
         run: >
-          valgrind --tool=memcheck ${{ github.workspace }}/build/bin/${{ matrix.build_type }}/HelloGithub
+          valgrind --tool=memcheck ${{ github.workspace }}/build/bin/HelloGithub
       
       - name: Test
         working-directory: ${{ steps.strings.outputs.build-output-dir }}
