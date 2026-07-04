@@ -10,7 +10,7 @@ jobs:
       matrix:
         c_compiler: [gcc, clang]
         cpp_compiler: [g++, clang++]
-        build_type: [Release Debug]
+        build_type: [Release]
     runs-on: ubuntu-latest
     steps:
       - name: Clone GIT repo
